@@ -51,11 +51,14 @@ const (
 	valRight  = -1
 	valUp     = 0
 	valDown   = -1
+
+	pressedRotTicks = 2
 )
 
 type state struct {
 	pressed   bool
 	pressedAt time.Time
+	rot       int
 }
 
 func (s *state) handle(typ, val int32) {
@@ -63,14 +66,20 @@ func (s *state) handle(typ, val int32) {
 	case typeRot:
 		switch val {
 		case valRight:
+			s.rot++
 			if s.pressed {
-				execute("playerctl", "next")
+				if s.rot%pressedRotTicks == 0 {
+					execute("playerctl", "next")
+				}
 			} else {
 				execute("amixer", "-D", "pulse", "sset", "Master", "1%+")
 			}
 		case valLeft:
+			s.rot--
 			if s.pressed {
-				execute("playerctl", "previous")
+				if s.rot%pressedRotTicks == 0 {
+					execute("playerctl", "previous")
+				}
 			} else {
 				execute("amixer", "-D", "pulse", "sset", "Master", "1%-")
 			}
